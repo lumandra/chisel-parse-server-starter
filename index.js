@@ -111,12 +111,16 @@ if (DASHBOARD_ACTIVATED) {
       appId: APP_ID,
       masterKey: MASTER_KEY,
       appName: parseConfig.appName
-    }],
+    }]
+  };
+
+  const dashboardOptions = {
     trustProxy: 1,
     PARSE_DASHBOARD_COOKIE_SESSION_SECRET: APP_ID,
     PARSE_DASHBOARD_ALLOW_INSECURE_HTTP: 1,
     PARSE_DASHBOARD_TRUST_PROXY: 1,
-    allowInsecureHTTP: 1
+    allowInsecureHTTP: 1,
+    cookieSessionSecret: 'testSecretString'
   };
 
   if (DASH_USER_EMAIL && DASH_USER_PASSWORD)
@@ -126,7 +130,7 @@ if (DASHBOARD_ACTIVATED) {
     }];
 
   module.exports.dashboardConfig = dashboardConfig;
-  const dashboard = new ParseDashboard(dashboardConfig);
+  const dashboard = new ParseDashboard(dashboardConfig, dashboardOptions);
   app.use('/dashboard', dashboard);
 }
 
