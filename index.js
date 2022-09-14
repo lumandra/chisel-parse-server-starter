@@ -42,6 +42,7 @@ Object.assign(parseConfig, {
   appId: APP_ID,
   masterKey: MASTER_KEY,
   cloud: "./cloud/main",
+  enableAnonymousUsers: false,
   databaseURI: URL_DB,
   maxUploadSize: MAX_UPLOAD_SIZE,
 
@@ -67,13 +68,13 @@ module.exports.StripeConfig = StripeConfig;
 
 
 const parseServer = new ParseServer(parseConfig);
-const parseGraphQLServer = new ParseGraphQLServer(
-  parseServer,
-  {graphQLPath: '/graphql'}
-);
+// const parseGraphQLServer = new ParseGraphQLServer(
+//   parseServer,
+//   {graphQLPath: '/graphql'}
+// );
 const app = new express();
 app.use('/parse', parseServer.app);
-parseGraphQLServer.applyGraphQL(app);
+// parseGraphQLServer.applyGraphQL(app);
 
 app.post('/users_code', bodyParser.json(), (req, res, next) => {
   if (req.headers['x-parse-application-id'] == APP_ID && req.headers['x-parse-rest-api-key'] == MASTER_KEY)
@@ -104,31 +105,46 @@ app.post('/users_code', bodyParser.json(), (req, res, next) => {
 
 
 if (DASHBOARD_ACTIVATED) {
-  const dashboardConfig = {
+    // const dashboardConfig = {
+    //     apps: [{
+    //         serverURL: URL_SERVER,
+    //         graphQLServerURL: GRAPHQL_SERVER,
+    //         appId: APP_ID,
+    //         masterKey: MASTER_KEY,
+    //         appName: parseConfig.appName
+    //     }],
+    //     trustProxy: 1,
+    //     PARSE_DASHBOARD_COOKIE_SESSION_SECRET: APP_ID,
+    //     PARSE_DASHBOARD_ALLOW_INSECURE_HTTP: 1,
+    //     PARSE_DASHBOARD_TRUST_PROXY: 1,
+    //     allowInsecureHTTP: 1
+    // };
+    //
+
+  const dashboardConfig = ({
     apps: [{
-      serverURL: URL_SERVER,
-      graphQLServerURL: GRAPHQL_SERVER,
       appId: APP_ID,
+      appName: parseConfig.appName,
       masterKey: MASTER_KEY,
-      appName: parseConfig.appName
-    }]
-  };
+      serverURL: URL_SERVER,
+    }],
+    trustProxy: 1
+  })
+    if (DASH_USER_EMAIL && DASH_USER_PASSWORD)
+      dashboardConfig.users = [{
+        user: DASH_USER_EMAIL,
+        pass: DASH_USER_PASSWORD
+      }];
 
-  const dashboardOptions = {
-    trustProxy: 1,
-    PARSE_DASHBOARD_COOKIE_SESSION_SECRET: APP_ID,
-    PARSE_DASHBOARD_ALLOW_INSECURE_HTTP: 1,
-    PARSE_DASHBOARD_TRUST_PROXY: 1,
-    allowInsecureHTTP: 1,
-    cookieSessionSecret: 'testSecretString'
-  };
+  const dashboardOptions = ({
+    options: {
+      allowInsecureHTTP: true,
+      cookieSessionSecret: APP_ID
+    }
+  })
 
-  if (DASH_USER_EMAIL && DASH_USER_PASSWORD)
-    dashboardConfig.users = [{
-      user: DASH_USER_EMAIL,
-      pass: DASH_USER_PASSWORD
-    }];
-
+  console.log(dashboardConfig);
+  console.log(dashboardOptions);
   module.exports.dashboardConfig = dashboardConfig;
   const dashboard = new ParseDashboard(dashboardConfig, dashboardOptions);
   app.use('/dashboard', dashboard);
@@ -167,7 +183,7 @@ const postStart = async () => {
 
     const ACL = new Parse.ACL();
     ACL.setPublicReadAccess(true);
-    ACL.setPublicWriteAccess(false);
+    ACL.setPublicWriteAccess(true);
 
     for (let template of templates) {
       try {
