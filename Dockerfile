@@ -1,5 +1,8 @@
 FROM node:14.13.0
 
+RUN apt-get update
+RUN apt-get install vim
+
 RUN mkdir parse
 
 ADD . /parse
