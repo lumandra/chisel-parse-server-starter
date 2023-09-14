@@ -248,6 +248,7 @@ const httpServer = http.createServer(app);
 httpServer.listen(PORT, async () => {
   await postStart();
   console.log(`Chisel Parse server v${packageJSON.version} running on port ${PORT}.`);
+  console.log(process.env);
 });
 
 const lqServer = ParseServer.createLiveQueryServer(httpServer);
