@@ -33,6 +33,9 @@ const DASH_USER_PASSWORD  = process.env.USER_PASS           || config.extraConfi
 
 const SITE_TEMPLATES      = process.env.SITE_TEMPLATES      || config.extraConfig.siteTemplates;
 
+const VERIFY_USER_EMAIL = process.env.VERIFY_USER_EMAIL || parseConfig.verifyUserEmails;
+const PREVENT_LOGIN_WITH_UNVERIFIED_EMAIL = process.env.PREVENT_LOGIN_WITH_UNVERIFIED_EMAIL || parseConfig.preventLoginWithUnverifiedEmail;
+
 
 let emailOptions = parseConfig.emailAdapter.options;
 emailOptions.fromAddress  = process.env.FROM_ADDRESS    || emailOptions.fromAddress;
@@ -46,6 +49,8 @@ Object.assign(parseConfig, {
   cloud: "./cloud/main",
   databaseURI: URL_DB,
   maxUploadSize: MAX_UPLOAD_SIZE,
+  verifyUserEmails: VERIFY_USER_EMAIL,
+  preventLoginWithUnverifiedEmail: PREVENT_LOGIN_WITH_UNVERIFIED_EMAIL,
 
   serverURL: URL_SERVER,
   publicServerURL: URL_SERVER,
@@ -228,13 +233,11 @@ const checkUsersCode = async() => {
     const SERVER_URL = process.env.SERVER_URL;
     const parse_id = SERVER_URL.match(/https:\/\/(\d*).*/)[1]
     var file = fs.statSync('./cloud/users_code.js');
-    const url = process.env.CUSTOM_CODE_URL || 'https://getforge.com/cloud66-webhook';
-    console.log(file.size);
-    console.log(url);
-    if (file.size == 0){
-      request.post({headers: {'content-type': 'application/json'},
-        url: url, body: `{"service": {"name": "parse-${parse_id }"}}`})
-      }
+        const url = process.env.CUSTOM_CODE_URL || 'https://getforge.com/cloud66-webhook';
+        if (file.size == 0){
+            request.post({headers: {'content-type': 'application/json'},
+                url: url, body: `{"service": {"name": "parse-${parse_id }"}}`})
+        }
     }
     catch (e) {
         console.log(e)
@@ -265,6 +268,7 @@ setInterval(clearLogs, clearLogInterval);
 const httpServer = http.createServer(app);
 httpServer.listen(PORT, async () => {
   await postStart();
+  await checkUsersCode();
   console.log(`Chisel Parse server v${packageJSON.version} running on port ${PORT}.`);
   await checkUsersCode();
 });
