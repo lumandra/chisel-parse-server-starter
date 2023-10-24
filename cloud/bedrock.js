@@ -1,5 +1,5 @@
 
-const BedrokRuntime = async (req, res) =>
+const BedrockRuntime = async (req, res) =>
 {
   const AWS = require("@aws-sdk/client-bedrock-runtime");
 
@@ -50,4 +50,4 @@ const BedrokRuntime = async (req, res) =>
 
 }
 
-module.exports = {BedrokRuntime};
+module.exports = {BedrockRuntime};

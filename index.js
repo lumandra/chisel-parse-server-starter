@@ -10,7 +10,7 @@ const fs = require('fs');
 require('dotenv').config();
 const bodyParser = require('body-parser');
 const packageJSON = require('./package.json');
-const { BedrokRuntime } = require("./cloud/bedrock");
+const { BedrockRuntime } = require("./cloud/bedrock");
 
 const config = require('./config.json');
 
